@@ -1,0 +1,75 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" href="style.css">
+  <!-- <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous"> -->
+</head>
+<body>
+  <div class="side-panel" id="left-options">
+    <div>
+      <button class="control-mode" id="master-mode">
+        %CONTROL_STATE%
+      </button>
+    </div>
+    <button class="control-mode" id="fan-mode">
+      %FAN_STATE%
+    </button>
+    <button class="control-mode" id="rv-mode">
+      %RV_STATE%
+    </button>
+  </div>
+  <div class="center-panel">
+    <div class="main-display" id="main-temp">
+      Loading...
+      <sup class="units">&deg;F</sup>
+    </div>
+    <div class="bottom-bar">
+      <ul class="nav-list-items">
+        <li class="item">
+          <a class="page" href="#">
+             Main
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div class="side-panel" id="right-set">
+    <button class="control-arrow">
+      UP
+    </button>
+    <div>
+      %SET_TEMP%
+      <sup class="units">&deg;F</sup>
+    </div>
+    <button class="control-arrow">
+      DOWN
+    </button>
+  </div>
+  </div>
+</body>
+<script language="javascript">
+  if (!!window.EventSource) {
+    var source = new EventSource('/events');
+    source.addEventListener('open', function(e) {
+       console.log("Events Connected");
+    }, false);
+    source.addEventListener('error', function(e) {
+       if (e.target.readyState != EventSource.OPEN) {
+         console.log("Events Disconnected");
+       }
+    }, false);
+    source.addEventListener('message', function(e) {
+        console.log("message", e.data);
+    }, false);
+
+    source.addEventListener('temp', function(e) {
+        setTempValue(e.data);
+    }, false);
+
+    function setTempValue(temp) {
+      document.getElementById("temperature").innerHTML = temp;
+    }
+  }
+</script>
+</html>

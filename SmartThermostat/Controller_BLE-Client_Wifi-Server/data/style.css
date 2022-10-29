@@ -1,0 +1,51 @@
+html {
+    font-family: Arial;
+    color:darkblue;
+}
+body {
+    display: flex;
+    justify-content: center;
+    background-color: gray;
+}
+.center-panel {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.main-display {
+    margin: 1.0em;
+    font-size: x-large;
+    font-weight: bold;
+}
+.side-panel {
+    margin: 1.0em;
+    font-size: small;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.control-mode {
+    color: darkblue;
+}
+.control-arrow {
+    color: darkblue;
+}
+/* .bottom-bar {
+    
+} */
+.bottom-bar .nav-list-items {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+/* .bottom-bar .nav-list-items .item {
+
+} */
+.bottom-bar .nav-list-items .item .page {
+    font-weight: bold;
+    text-decoration: none;
+    color: darkblue;
+}
