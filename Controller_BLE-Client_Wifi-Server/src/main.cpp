@@ -1,5 +1,4 @@
 #include <Arduino.h>
-#include <stdlib.h>
 #include "BLEDevice.h"
 #include <Wire.h>
 #include <WiFi.h>
@@ -16,7 +15,7 @@ AsyncWebServer server(80);
 // Async Events
 AsyncEventSource events("/events");
 
-//BLE Server name (the other device name running the server sketch)
+// BLE Server name (the other device name running the server sketch)
 #define bleServerName "DHT22_ESP32_1"
 
 // Declare callback function
@@ -42,10 +41,10 @@ static BLERemoteCharacteristic* temperatureCharacteristic;
 const uint8_t notificationOn[] = {0x1, 0x0};
 const uint8_t notificationOff[] = {0x0, 0x0};
 
-//Variables to store temperature and humidity
-char* temperatureChar;
+//Variable to store temperature
+int temperatureInt = 70;
 
-//Flags to check whether new temperature and humidity readings are available
+//Flags to check whether new temperature readings are available
 boolean newTemperature = false;
 
 //Connect to the BLE Server that has the name, Service, and Characteristics
@@ -90,17 +89,37 @@ class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
   }
 };
  
-//When the BLE Server sends a new temperature reading with the notify property
+// When the BLE Server sends a new temperature reading with the notify property
 static void temperatureNotifyCallback(BLERemoteCharacteristic* pBLERemoteCharacteristic, uint8_t* pData, size_t length, bool isNotify) {
   //store temperature value
+  static char* temperatureChar;
   temperatureChar = (char*)pData;
+  static int tempInt;
+  tempInt = String(temperatureChar).toInt();
+  if (tempInt != 0) {
+    temperatureInt = tempInt;
+  }
   newTemperature = true;
 }
 
+// Process web page requests
+String processor(const String& var){
+  if (var =="CURRENT_TEMP") {
+    return String(temperatureInt);
+  }
+  else if (var == "SET_TEMP"){
+    return String(set_temp);
+  }
+  return String();
+}
+
 void setup() {
-  //Start serial communication
+  // Start serial communication
   Serial.begin(115200);
   Serial.println("Starting Aapplication...");
+
+  // Initialize control logic
+  setupControl();
 
   // Initialize SPIFFS
   if(!SPIFFS.begin(true)){
@@ -123,11 +142,21 @@ void setup() {
 
   // Route for root / web page
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(SPIFFS, "/index.html", String(), false, NULL);
+    request->send(SPIFFS, "/index.html", String(), false, processor);
   });
   // Route to load style.css file
   server.on("/style.css", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(SPIFFS, "/style.css", "text/css");
+  });
+  // Route to increment control set point
+  server.on("/set-up", HTTP_GET, [](AsyncWebServerRequest *request) {
+    set_temp = set_temp + 1;
+    request->send(SPIFFS, "/index.html", String(), false, processor);
+  });
+  // Route to increment control set point
+  server.on("/set-down", HTTP_GET, [](AsyncWebServerRequest *request) {
+    set_temp = set_temp - 1;
+    request->send(SPIFFS, "/index.html", String(), false, processor);
   });
 
   // Start server
@@ -152,7 +181,7 @@ void loop() {
   // If the flag "doConnect" is true then we have scanned for and found the desired
   // BLE Server with which we wish to connect.  Now we connect to it.  Once we are
   // connected we set the connected flag to be true.
-  if (doConnect == true) {
+  if (doConnect) {
     if (connectToServer(*pServerAddress)) {
       Serial.println("We are now connected to the BLE Server.");
       //Activate the Notify property of each Characteristic
@@ -167,15 +196,15 @@ void loop() {
 
   // If new temperature readings are available, publish to server
   if (newTemperature){
+    events.send(String(temperatureInt).c_str(), "temp", time_now); // time_now is used as an int message IDs
     newTemperature = false;
-    events.send(temperatureChar, "temp", time_now); // time_now is used as an int message ID
     // Serial.print("Temperature: ");
     // Serial.print(temperatureChar);
     // Serial.println(" F");
   }
 
-  Serial.println(atoi(temperatureChar));
-  updateControlStates(atoi(temperatureChar));
+  // Serial.println(temperatureInt);
+  updateControl(temperatureInt);
 
   while (millis() < time_now + 1000) {}
 }

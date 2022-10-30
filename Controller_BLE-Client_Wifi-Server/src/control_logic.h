@@ -1,24 +1,50 @@
 #include<Arduino.h>
 
-int set_temp = 0; // set temperature command in
+#define CMPSR_PIN 33 // turn compressor on (HIGH) / off (LOW)
+#define RV_PIN 26 // set reversing valve to cold (HIGH) / heat (LOW)
+#define FAN_PIN 27 // set fan on (HIGH) / off (LOW)
+#define EM_PIN 25 // set emergency heat on (HIGH) / off (LOW)
+
+// Declare functions
+static void setupControl();
+static void updateControl(int current_temp);
+
+int set_temp = 70; // set temperature command in
 bool heat_cool = false; // input for cooling (true) / heat (false)
 bool fan_in = false; // input for fan on/auto
 
-bool compressor_cmd = false; // turn compressor on (true) / off (false)
-bool RV_cmd = false; // set reversing valve to cold (true) / heat (false)
-bool fan_cmd = false; // set fan on (true) / off (false)
-bool emheat_cmd = false; // set emergency heat on (true) / off (false)
-
 int cpsr_state_change_countdown = -1; // timer to track compressor state change lockout
-const int cpsr_state_delay = 180000; // three minute timer between compressor, RV, or emheat state changes
+const int cpsr_state_delay = 180000; // timer in main loops (three minutes for current set) between compressor, RV, or emheat state changes
+// const int cpsr_state_delay = 2; // short timer for troubleshooting
 
 int fan_delay_countdown = -1; // timer to track fan shutdown delay
-const int fan_delay = 300000; // five minute timer between compressor turning off and fan turning off
+const int fan_delay = 300000; // timer in main loops (three minutes for current set) between compressor turning off and fan turning off
+// const int fan_delay = 2; // short timer for troubleshooting
 
-static void updateControlStates(int current_temp) {
-    int control_error = current_temp - set_temp;
-    bool cpsr_change_ok = true;
-    bool fan_change_ok = true;
+// Vars for updateControl function
+int control_error;
+bool cpsr_change_ok;
+bool fan_change_ok;
+bool compressor_state;
+bool RV_state;
+bool EM_state;
+bool Fan_state;
+
+static void setupControl() {
+    pinMode(CMPSR_PIN, OUTPUT);
+    pinMode(RV_PIN, OUTPUT);
+    pinMode(FAN_PIN, OUTPUT);
+    pinMode(EM_PIN, OUTPUT);
+}
+
+static void updateControl(int current_temp) {
+    control_error = current_temp - set_temp;
+    cpsr_change_ok = true;
+    fan_change_ok = true;
+    compressor_state = (digitalRead(CMPSR_PIN) == HIGH);
+    RV_state = (digitalRead(RV_PIN) == HIGH);
+    EM_state = (digitalRead(EM_PIN) == HIGH);
+    Fan_state = (digitalRead(FAN_PIN) == HIGH);
 
     if (cpsr_state_change_countdown > 0) {
         cpsr_state_change_countdown = cpsr_state_change_countdown - 1;
@@ -34,61 +60,61 @@ static void updateControlStates(int current_temp) {
         if (control_error < -3) {
             // Emergency heat ON condition
             if (cpsr_change_ok) {
-                if (!compressor_cmd || RV_cmd || !emheat_cmd) {
+                if (!compressor_state || RV_state || !EM_state) {
                     cpsr_state_change_countdown = cpsr_state_delay;
                 }
-                compressor_cmd = true;
-                RV_cmd = false;
-                emheat_cmd = true;
+                digitalWrite(CMPSR_PIN, HIGH);
+                digitalWrite(RV_PIN, LOW);
+                digitalWrite(EM_PIN, HIGH);
             }
         } else {
             // Normal heat ON condition
             if (cpsr_change_ok) {
-                if (!compressor_cmd || RV_cmd || emheat_cmd) {
+                if (!compressor_state || RV_state || EM_state) {
                     cpsr_state_change_countdown = cpsr_state_delay;
                 }
-                compressor_cmd = true;
-                RV_cmd = false;
-                emheat_cmd = false;
+                digitalWrite(CMPSR_PIN, HIGH);
+                digitalWrite(RV_PIN, LOW);
+                digitalWrite(EM_PIN, LOW);
             }
         }
     } else if (control_error > 0) {
         // Normal cool ON condition
         if (cpsr_change_ok) {
-            if (!compressor_cmd || !RV_cmd || emheat_cmd) {
+            if (!compressor_state || !RV_state || EM_state) {
                 cpsr_state_change_countdown = cpsr_state_delay;
             }
-            compressor_cmd = true;
-            RV_cmd = true;
-            emheat_cmd = false;
+            digitalWrite(CMPSR_PIN, HIGH);
+            digitalWrite(RV_PIN, HIGH);
+            digitalWrite(EM_PIN, LOW);
         }
     } else {
         // Target condition met
         if (cpsr_change_ok) {
-            if (compressor_cmd || RV_cmd || emheat_cmd) {
+            if (compressor_state || RV_state || EM_state) {
                 cpsr_state_change_countdown = cpsr_state_delay;
             }
-            compressor_cmd = false;
-            RV_cmd = false;
-            emheat_cmd = false;
+            digitalWrite(CMPSR_PIN, LOW);
+            digitalWrite(RV_PIN, LOW);
+            digitalWrite(EM_PIN, LOW);
         }
     }
 
     // Set fan control
     if (fan_change_ok && fan_in) {
-        if (!fan_cmd) {
+        if (!Fan_state) {
             fan_delay_countdown = fan_delay;
         }
-        fan_cmd = true;
-    } else if (fan_change_ok && compressor_cmd) {
-        if (!fan_cmd) {
+        digitalWrite(FAN_PIN, HIGH);
+    } else if (fan_change_ok && compressor_state) {
+        if (!Fan_state) {
             fan_delay_countdown = fan_delay;
         }
-        fan_cmd = true;
+        digitalWrite(FAN_PIN, HIGH);
     } else if (fan_change_ok) {
-        if (fan_cmd) {
+        if (Fan_state) {
             fan_delay_countdown = fan_delay;
         }
-        fan_cmd = false;
+        digitalWrite(FAN_PIN, LOW);
     }
 }

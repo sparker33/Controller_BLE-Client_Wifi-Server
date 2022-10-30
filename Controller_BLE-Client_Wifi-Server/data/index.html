@@ -3,25 +3,26 @@
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" type="text/css" href="style.css">
-  <!-- <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous"> -->
 </head>
 <body>
   <div class="side-panel" id="left-options">
     <div>
-      <button class="control-mode" id="master-mode">
+      <button class="control-mode button" id="master-mode">
         %CONTROL_STATE%
       </button>
     </div>
-    <button class="control-mode" id="fan-mode">
+    <button class="control-mode button" id="fan-mode">
       %FAN_STATE%
     </button>
-    <button class="control-mode" id="rv-mode">
+    <button class="control-mode button" id="rv-mode">
       %RV_STATE%
     </button>
   </div>
   <div class="center-panel">
-    <div class="main-display" id="main-temp">
-      Loading...
+    <div class="main-display">
+      <span id="main-temp">
+        %CURRENT_TEMP%
+      </span>
       <sup class="units">&deg;F</sup>
     </div>
     <div class="bottom-bar">
@@ -35,16 +36,11 @@
     </div>
   </div>
   <div class="side-panel" id="right-set">
-    <button class="control-arrow">
-      UP
-    </button>
-    <div>
-      %SET_TEMP%
-      <sup class="units">&deg;F</sup>
+    <a href="/set-up" class="centered-link"><i class="control-arrow up"></i></a>
+    <div class="set-temp-display">
+      %SET_TEMP% <sup class="units">&deg;F</sup>
     </div>
-    <button class="control-arrow">
-      DOWN
-    </button>
+    <a href="/set-down" class="centered-link"><i class="control-arrow down"></i></a>
   </div>
   </div>
 </body>
@@ -68,7 +64,7 @@
     }, false);
 
     function setTempValue(temp) {
-      document.getElementById("temperature").innerHTML = temp;
+      document.getElementById("main-temp").innerHTML = temp;
     }
   }
 </script>

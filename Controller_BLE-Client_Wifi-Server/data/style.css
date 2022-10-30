@@ -1,11 +1,15 @@
 html {
     font-family: Arial;
-    color:darkblue;
+    color:white;
+    background-color: black;
 }
 body {
     display: flex;
     justify-content: center;
-    background-color: gray;
+}
+.button {
+    color:white;
+    background-color: black;
 }
 .center-panel {
     text-align: center;
@@ -26,10 +30,27 @@ body {
     justify-content: space-between;
 }
 .control-mode {
-    color: darkblue;
+    color: inherit;
+}
+.set-temp-display {
+    text-align: center;
+}
+.centered-link {
+    text-align:center
 }
 .control-arrow {
-    color: darkblue;
+    border: solid white;
+    border-width: 0 4px 4px 0;
+    display: inline-block;
+    padding: 4px;
+}
+.up {
+  transform: rotate(-135deg);
+  -webkit-transform: rotate(-135deg);
+}
+.down {
+  transform: rotate(45deg);
+  -webkit-transform: rotate(45deg);
 }
 /* .bottom-bar {
     
@@ -47,5 +68,5 @@ body {
 .bottom-bar .nav-list-items .item .page {
     font-weight: bold;
     text-decoration: none;
-    color: darkblue;
+    color: inherit;
 }

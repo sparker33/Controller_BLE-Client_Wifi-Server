@@ -19,17 +19,15 @@ DHT dht = DHT(DHTPIN, DHTTYPE);
 
 // Data Vars
 float temp;
-float tempF;
+int intTempF;
 // Timer vars
-unsigned long lastTime = 0;
-unsigned long timerDelay = 30000;
+int timerDelay = 30000;
+// int timerDelay = 3000; // 3 seconds - quick for debug
 bool deviceConnected = false;
 
 // Set up Temperature BLE package Characteristic and Descriptor
 BLECharacteristic dhtTemperatureFahrenheitCharacteristics("81d66e80-9793-4194-82e5-2a096d9d4ef0", BLECharacteristic::PROPERTY_NOTIFY);
 BLEDescriptor dhtTemperatureFahrenheitDescriptor(BLEUUID((uint16_t)0x2902));
-
-
 
 //Setup callbacks onConnect and onDisconnect
 class MyServerCallbacks: public BLEServerCallbacks {
@@ -75,23 +73,21 @@ void setup() {
 
 void loop() {
   if (deviceConnected) {
-    if ((millis() - lastTime) > timerDelay) {
-      // Read temperature as Celsius (the default)
-      temp = dht.readTemperature();
-      // Fahrenheit
-      tempF = 1.8*temp +32;
-  
-      //Notify temperature reading from BME sensor
-      static char temperatureFTemp[6];
-      dtostrf(tempF, 6, 2, temperatureFTemp);
-      //Set temperature Characteristic value and notify connected client
-      dhtTemperatureFahrenheitCharacteristics.setValue(temperatureFTemp);
-      dhtTemperatureFahrenheitCharacteristics.notify();
-      Serial.print("Temperature Fahrenheit: ");
-      Serial.print(tempF);
-      Serial.print(" F");
-      
-      lastTime = millis();
-    }
+    // Read temperature as Celsius (the default)
+    temp = dht.readTemperature();
+    // Fahrenheit
+    intTempF = (int)(1.8*temp + 32 + 0.5);
+
+    //Notify temperature reading from DHT sensor
+    static char temperatureFTemp[3];
+    dtostrf(intTempF, 3, 0, temperatureFTemp);
+    //Set temperature Characteristic value and notify connected client
+    dhtTemperatureFahrenheitCharacteristics.setValue(temperatureFTemp);
+    dhtTemperatureFahrenheitCharacteristics.notify();
+    Serial.print("Temperature Fahrenheit: ");
+    Serial.print(temperatureFTemp);
+    Serial.println(" F");
+
+    delay(timerDelay);
   }
 }
