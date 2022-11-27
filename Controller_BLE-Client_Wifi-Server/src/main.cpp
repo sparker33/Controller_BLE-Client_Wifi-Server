@@ -10,6 +10,13 @@
 const char* ssid = "NETGEAR59";
 const char* password = "moderntuba214";
 
+// Set your Static IP address
+IPAddress local_IP(192, 168, 1, 184);
+// Set your Gateway IP address
+IPAddress gateway(192, 168, 1, 1);
+
+IPAddress subnet(255, 255, 0, 0);
+
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
 // Async Events
@@ -127,6 +134,11 @@ void setup() {
     return;
   }
   
+  // Configures static IP address and hostname
+  if (!WiFi.config(local_IP, gateway, subnet)) {
+    Serial.println("STA Failed to configure");
+  }
+
   // Connect to Wi-Fi
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
@@ -198,9 +210,9 @@ void loop() {
   if (newTemperature){
     events.send(String(temperatureInt).c_str(), "temp", time_now); // time_now is used as an int message IDs
     newTemperature = false;
-    // Serial.print("Temperature: ");
-    // Serial.print(temperatureChar);
-    // Serial.println(" F");
+    Serial.print("Temperature: ");
+    Serial.print(temperatureInt);
+    Serial.println(" F");
   }
 
   // Serial.println(temperatureInt);

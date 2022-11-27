@@ -14,11 +14,11 @@ bool heat_cool = false; // input for cooling (true) / heat (false)
 bool fan_in = false; // input for fan on/auto
 
 int cpsr_state_change_countdown = -1; // timer to track compressor state change lockout
-const int cpsr_state_delay = 180000; // timer in main loops (three minutes for current set) between compressor, RV, or emheat state changes
+const int cpsr_state_delay = 120; // timer in main loops (1 sec per loop typical) between compressor, RV, or emheat state changes
 // const int cpsr_state_delay = 2; // short timer for troubleshooting
 
 int fan_delay_countdown = -1; // timer to track fan shutdown delay
-const int fan_delay = 300000; // timer in main loops (three minutes for current set) between compressor turning off and fan turning off
+const int fan_delay = 180; // timer in main loops (1 sec per loop typical) between compressor turning off and fan turning off
 // const int fan_delay = 2; // short timer for troubleshooting
 
 // Vars for updateControl function

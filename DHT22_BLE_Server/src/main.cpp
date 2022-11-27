@@ -20,7 +20,7 @@ DHT dht = DHT(DHTPIN, DHTTYPE);
 // Data Vars
 float temp;
 int intTempF;
-// Timer vars
+// Timer vars (in ms)
 int timerDelay = 30000;
 // int timerDelay = 3000; // 3 seconds - quick for debug
 bool deviceConnected = false;
