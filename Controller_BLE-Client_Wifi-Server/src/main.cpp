@@ -135,9 +135,9 @@ void setup() {
   }
   
   // Configures static IP address and hostname
-  if (!WiFi.config(local_IP, gateway, subnet)) {
-    Serial.println("STA Failed to configure");
-  }
+  // if (!WiFi.config(local_IP, gateway, subnet)) {
+  //   Serial.println("STA Failed to configure");
+  // }
 
   // Connect to Wi-Fi
   WiFi.begin(ssid, password);

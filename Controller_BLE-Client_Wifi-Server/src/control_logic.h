@@ -1,9 +1,9 @@
 #include<Arduino.h>
 
-#define CMPSR_PIN 33 // turn compressor on (HIGH) / off (LOW)
-#define RV_PIN 26 // set reversing valve to cold (HIGH) / heat (LOW)
-#define FAN_PIN 27 // set fan on (HIGH) / off (LOW)
-#define EM_PIN 25 // set emergency heat on (HIGH) / off (LOW)
+#define CMPSR_PIN 26 // turn compressor on (HIGH) / off (LOW)
+#define RV_PIN 33 // set reversing valve to cold (HIGH) / heat (LOW)
+#define FAN_PIN 25 // set fan on (HIGH) / off (LOW)
+#define EM_PIN 27 // set emergency heat on (HIGH) / off (LOW)
 
 // Declare functions
 static void setupControl();
@@ -45,6 +45,14 @@ static void updateControl(int current_temp) {
     RV_state = (digitalRead(RV_PIN) == HIGH);
     EM_state = (digitalRead(EM_PIN) == HIGH);
     Fan_state = (digitalRead(FAN_PIN) == HIGH);
+    Serial.print("compressor_state");
+    Serial.println(compressor_state);
+    Serial.print("RV_state");
+    Serial.println(RV_state);
+    Serial.print("EM_state");
+    Serial.println(EM_state);
+    Serial.print("Fan_state");
+    Serial.println(Fan_state);
 
     if (cpsr_state_change_countdown > 0) {
         cpsr_state_change_countdown = cpsr_state_change_countdown - 1;
