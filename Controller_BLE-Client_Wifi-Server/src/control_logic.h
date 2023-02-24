@@ -1,9 +1,9 @@
 #include<Arduino.h>
 
-#define CMPSR_PIN 26 // turn compressor on (HIGH) / off (LOW)
-#define RV_PIN 33 // set reversing valve to cold (HIGH) / heat (LOW)
-#define FAN_PIN 25 // set fan on (HIGH) / off (LOW)
-#define EM_PIN 27 // set emergency heat on (HIGH) / off (LOW)
+#define CMPSR_PIN 25 // turn compressor on (HIGH) / off (LOW)
+#define RV_PIN 26 // set reversing valve to cold (HIGH) / heat (LOW)
+#define FAN_PIN 33 // set fan on (HIGH) / off (LOW)
+#define EM_PIN 32 // set emergency heat on (HIGH) / off (LOW)
 
 // Declare functions
 static void setupControl();
